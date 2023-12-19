@@ -1,0 +1,518 @@
+---
+openapi: 3.1.0
+info:
+  title: Flight Booking System
+  version: v1
+paths:
+  "/api/v1/flights":
+    get:
+      tags:
+      - Gateway API
+      summary: Get List Of Flights
+      operationId: get_list_of_flights_api_v1_flights_get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          title: Size
+      responses:
+        '200':
+          description: РЎРїРёСЃРѕРє СЂРµР№СЃРѕРІ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PaginationResponse"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+  "/api/v1/tickets":
+    get:
+      tags:
+      - Gateway API
+      summary: Get Information On All User Tickets
+      operationId: get_information_on_all_user_tickets_api_v1_tickets_get
+      parameters:
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      responses:
+        '200':
+          description: "Р\x98РЅС„РѕСЂРјР°С†РёСЏ РїРѕ РІСЃРµРј Р±РёР»РµС‚Р°Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/TicketResponse"
+                title: Response Get Information On All User Tickets Api V1 Tickets
+                  Get
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Gateway API
+      summary: Buy Ticket
+      operationId: buy_ticket_api_v1_tickets_post
+      parameters:
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TicketPurchaseRequest"
+      responses:
+        '200':
+          description: "Р\x98РЅС„РѕСЂРјР°С†РёСЏ Рѕ РєСѓРїР»РµРЅРЅРѕРј Р±РёР»РµС‚Рµ"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TicketPurchaseResponse"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Р РµР№СЃ СЃ С‚Р°РєРёРј РЅРѕРјРµСЂРѕРј РЅРµ РЅР°Р№РґРµРЅ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/tickets/{ticketUid}":
+    get:
+      tags:
+      - Gateway API
+      summary: Get Information On User Ticket
+      operationId: get_information_on_user_ticket_api_v1_tickets__ticketUid__get
+      parameters:
+      - name: ticketUid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Ticketuid
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      responses:
+        '200':
+          description: "Р\x98РЅС„РѕСЂРјР°С†РёСЏ РїРѕ РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ Р±РёР»РµС‚Сѓ"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TicketResponse"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Р‘РёР»РµС‚ РЅРµ РЅР°Р№РґРµРЅ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Gateway API
+      summary: Ticket Refund
+      operationId: ticket_refund_api_v1_tickets__ticketUid__delete
+      parameters:
+      - name: ticketUid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Ticketuid
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      responses:
+        '204':
+          description: Р’РѕР·РІСЂР°С‚ Р±РёР»РµС‚Р° СѓСЃРїРµС€РЅРѕ РІС‹РїРѕР»РЅРµРЅ
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Р‘РёР»РµС‚ РЅРµ РЅР°Р№РґРµРЅ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/me":
+    get:
+      tags:
+      - Gateway API
+      summary: Get User Information
+      operationId: get_user_information_api_v1_me_get
+      parameters:
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      responses:
+        '200':
+          description: РџРѕР»РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserInfoResponse"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+  "/api/v1/privilege":
+    get:
+      tags:
+      - Gateway API
+      summary: Get Information About Bonus Account
+      operationId: get_information_about_bonus_account_api_v1_privilege_get
+      parameters:
+      - name: X-User-Name
+        in: header
+        required: true
+        schema:
+          type: string
+          maxLength: 80
+          title: X-User-Name
+      responses:
+        '200':
+          description: Р”Р°РЅРЅС‹Рµ Рѕ Р±РѕРЅСѓСЃРЅРѕРј СЃС‡РµС‚Рµ
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PrivilegeInfoResponse"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+components:
+  schemas:
+    BalanceHistory:
+      properties:
+        date:
+          type: string
+          format: date-time
+          title: Date
+        ticketUid:
+          type: string
+          format: uuid
+          title: Ticketuid
+        balanceDiff:
+          type: integer
+          title: Balancediff
+        operationType:
+          "$ref": "#/components/schemas/PrivilegeHistoryStatus"
+      type: object
+      required:
+      - date
+      - ticketUid
+      - balanceDiff
+      - operationType
+      title: BalanceHistory
+    ErrorResponse:
+      properties: {}
+      type: object
+      title: ErrorResponse
+      example:
+        message: 'Method: exception description'
+    FlightResponse:
+      properties:
+        flightNumber:
+          type: string
+          maxLength: 20
+          title: Flightnumber
+        fromAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fromairport
+        toAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Toairport
+        date:
+          type: string
+          format: date-time
+          title: Date
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+      type: object
+      required:
+      - flightNumber
+      - fromAirport
+      - toAirport
+      - date
+      - price
+      title: FlightResponse
+    PaginationResponse:
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          title: Page
+        pageSize:
+          type: integer
+          minimum: 1
+          title: Pagesize
+        totalElements:
+          type: integer
+          minimum: 0
+          title: Totalelements
+        items:
+          items:
+            "$ref": "#/components/schemas/FlightResponse"
+          type: array
+          title: Items
+      type: object
+      required:
+      - page
+      - pageSize
+      - totalElements
+      - items
+      title: PaginationResponse
+    PrivilegeHistoryStatus:
+      type: string
+      enum:
+      - FILL_IN_BALANCE
+      - DEBIT_THE_ACCOUNT
+      title: PrivilegeHistoryStatus
+    PrivilegeInfoResponse:
+      properties:
+        balance:
+          type: integer
+          minimum: 0
+          title: Balance
+        status:
+          "$ref": "#/components/schemas/PrivilegeStatus"
+        history:
+          items:
+            "$ref": "#/components/schemas/BalanceHistory"
+          type: array
+          title: History
+      type: object
+      required:
+      - balance
+      - status
+      - history
+      title: PrivilegeInfoResponse
+    PrivilegeShortInfo:
+      properties:
+        balance:
+          type: integer
+          minimum: 0
+          title: Balance
+        status:
+          "$ref": "#/components/schemas/PrivilegeStatus"
+      type: object
+      required:
+      - balance
+      - status
+      title: PrivilegeShortInfo
+    PrivilegeStatus:
+      type: string
+      enum:
+      - BRONZE
+      - SILVER
+      - GOLD
+      title: PrivilegeStatus
+    TicketPurchaseRequest:
+      properties:
+        flightNumber:
+          type: string
+          maxLength: 20
+          title: Flightnumber
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+        paidFromBalance:
+          type: boolean
+          title: Paidfrombalance
+      type: object
+      required:
+      - flightNumber
+      - price
+      - paidFromBalance
+      title: TicketPurchaseRequest
+    TicketPurchaseResponse:
+      properties:
+        ticketUid:
+          type: string
+          format: uuid
+          title: Ticketuid
+        flightNumber:
+          type: string
+          maxLength: 20
+          title: Flightnumber
+        fromAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fromairport
+        toAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Toairport
+        date:
+          type: string
+          format: date-time
+          title: Date
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+        paidByMoney:
+          type: integer
+          minimum: 0
+          title: Paidbymoney
+        paidByBonuses:
+          type: integer
+          minimum: 0
+          title: Paidbybonuses
+        status:
+          "$ref": "#/components/schemas/TicketStatus"
+        privilege:
+          "$ref": "#/components/schemas/PrivilegeShortInfo"
+      type: object
+      required:
+      - ticketUid
+      - flightNumber
+      - fromAirport
+      - toAirport
+      - date
+      - price
+      - paidByMoney
+      - paidByBonuses
+      - status
+      - privilege
+      title: TicketPurchaseResponse
+    TicketResponse:
+      properties:
+        ticketUid:
+          type: string
+          format: uuid
+          title: Ticketuid
+        flightNumber:
+          type: string
+          maxLength: 20
+          title: Flightnumber
+        fromAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Fromairport
+        toAirport:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Toairport
+        date:
+          type: string
+          format: date-time
+          title: Date
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+        status:
+          "$ref": "#/components/schemas/TicketStatus"
+      type: object
+      required:
+      - ticketUid
+      - flightNumber
+      - fromAirport
+      - toAirport
+      - date
+      - price
+      - status
+      title: TicketResponse
+    TicketStatus:
+      type: string
+      enum:
+      - PAID
+      - CANCELED
+      title: TicketStatus
+    UserInfoResponse:
+      properties:
+        tickets:
+          items:
+            "$ref": "#/components/schemas/TicketResponse"
+          type: array
+          title: Tickets
+        privilege:
+          "$ref": "#/components/schemas/PrivilegeShortInfo"
+      type: object
+      required:
+      - tickets
+      - privilege
+      title: UserInfoResponse
+    ValidationErrorResponse:
+      properties: {}
+      type: object
+      title: ValidationErrorResponse
+      example:
+        errors:
+        - loc: error location
+          msg: error message
+          type: type of error
+        message: Invalid request

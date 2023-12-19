@@ -1,0 +1,478 @@
+---
+openapi: 3.1.0
+info:
+  title: Flight Service
+  version: v1
+paths:
+  "/api/v1/flights/":
+    get:
+      tags:
+      - Flight REST API operations
+      summary: Get All Flights
+      operationId: get_all_flights_api_v1_flights__get
+      parameters:
+      - name: flight_number
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 20
+          - type: 'null'
+          title: Flight Number
+      - name: min_price
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Min Price
+      - name: max_price
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Max Price
+      - name: datetime
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Datetime
+      - name: from_airport_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: From Airport Id
+      - name: to_airport_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: To Airport Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          title: Size
+      responses:
+        '200':
+          description: All Flights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Flight"
+                title: Response Get All Flights Api V1 Flights  Get
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Flight REST API operations
+      summary: Create New Flight
+      operationId: create_new_flight_api_v1_flights__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/FlightCreate"
+      responses:
+        '201':
+          description: Created new Flight
+          headers:
+            Location:
+              description: Path to new Flight
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/flights/{flight_id}/":
+    get:
+      tags:
+      - Flight REST API operations
+      summary: Get Flight By Id
+      operationId: get_flight_by_id_api_v1_flights__flight_id___get
+      parameters:
+      - name: flight_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Flight Id
+      responses:
+        '200':
+          description: Flight by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Flight"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Flight by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Flight REST API operations
+      summary: Remove Flight By Id
+      operationId: remove_flight_by_id_api_v1_flights__flight_id___delete
+      parameters:
+      - name: flight_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Flight Id
+      responses:
+        '204':
+          description: Flight by ID was removed
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Flight by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/airports/":
+    get:
+      tags:
+      - Airport REST API operations
+      summary: Get All Airports
+      operationId: get_all_airports_api_v1_airports__get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          title: Size
+      responses:
+        '200':
+          description: All Airports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Airport"
+                title: Response Get All Airports Api V1 Airports  Get
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Airport REST API operations
+      summary: Create New Airport
+      operationId: create_new_airport_api_v1_airports__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/AirportCreate"
+      responses:
+        '201':
+          description: Created new Airport
+          headers:
+            Location:
+              description: Path to new Airport
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+  "/api/v1/airports/{airport_id}/":
+    get:
+      tags:
+      - Airport REST API operations
+      summary: Get Airport By Id
+      operationId: get_airport_by_id_api_v1_airports__airport_id___get
+      parameters:
+      - name: airport_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Airport Id
+      responses:
+        '200':
+          description: Airport by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Airport"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Airport by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Airport REST API operations
+      summary: Remove Airport By Id
+      operationId: remove_airport_by_id_api_v1_airports__airport_id___delete
+      parameters:
+      - name: airport_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Airport Id
+      responses:
+        '204':
+          description: Airport by ID was removed
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Airport by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/manage/health/":
+    get:
+      tags:
+      - Manage
+      summary: Health
+      operationId: health_api_v1_manage_health__get
+      responses:
+        '200':
+          description: Flight server is ready to work
+          content:
+            application/octet-stream:
+              example: ''
+components:
+  schemas:
+    Airport:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name
+        city:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: City
+        country:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Country
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - name
+      - city
+      - country
+      - id
+      title: Airport
+    AirportCreate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name
+        city:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: City
+        country:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Country
+      type: object
+      title: AirportCreate
+    ErrorResponse:
+      properties: {}
+      type: object
+      title: ErrorResponse
+      example:
+        message: 'Method: exception description'
+    Flight:
+      properties:
+        flight_number:
+          type: string
+          maxLength: 20
+          title: Flight Number
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+        datetime:
+          type: string
+          format: date-time
+          title: Datetime
+        from_airport_id:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: From Airport Id
+        to_airport_id:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: To Airport Id
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - flight_number
+      - price
+      - datetime
+      - from_airport_id
+      - to_airport_id
+      - id
+      title: Flight
+    FlightCreate:
+      properties:
+        flight_number:
+          type: string
+          maxLength: 20
+          title: Flight Number
+        price:
+          type: integer
+          minimum: 1
+          title: Price
+        datetime:
+          type: string
+          format: date-time
+          title: Datetime
+        from_airport_id:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: From Airport Id
+        to_airport_id:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: To Airport Id
+      type: object
+      required:
+      - flight_number
+      - price
+      - datetime
+      title: FlightCreate
+    ValidationErrorResponse:
+      properties: {}
+      type: object
+      title: ValidationErrorResponse
+      example:
+        errors:
+        - loc: error location
+          msg: error message
+          type: type of error
+        message: Invalid request
