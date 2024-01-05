@@ -78,14 +78,25 @@ jobs:
         with:
           fetch-depth: 0
     
-      - uses: appleboy/ssh-action@v1.0.0
+      - uses: fifsky/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSWORD }}
+          command: |
+            ./scripts/test-script.sh v1 bonus_service 8050
+          host: ${{ secrets.HOST }}
           port: ${{ secrets.SSH_PORT }}
-          run: ./scripts/test-script.sh v1 bonus_service 8050
+          user: ${{ secrets.SSH_USERNAME }}
+          pass: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_KEY }}
+
+
+      # - uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USERNAME }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     passphrase: ${{ secrets.SSH_PASSWORD }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     run: ./scripts/test-script.sh v1 bonus_service 8050
 
       - uses: education/autograding@v1
         id: autograder
