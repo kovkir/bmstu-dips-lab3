@@ -42,3 +42,5 @@ services:
     bonus_host:  bonus_service
     flight_host: flight_service
     ticket_host: ticket_service
+    max_num_of_fails: 2
+    timeout: 10

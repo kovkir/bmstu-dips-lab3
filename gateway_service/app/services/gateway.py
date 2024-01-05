@@ -1,9 +1,10 @@
+import requests
 from uuid import UUID
 
 from cruds.interfaces.flight import IFlightCRUD
 from cruds.interfaces.ticket import ITicketCRUD
 from cruds.interfaces.bonus import IBonusCRUD
-from exceptions.http_exceptions import NotFoundException
+from exceptions.http_exceptions import NotFoundException, ServiceUnavailableException
 from enums.status import TicketStatus, PrivilegeHistoryStatus, PrivilegeStatus
 from schemas.user import UserInfoResponse
 from schemas.flight import (
@@ -26,6 +27,8 @@ from schemas.ticket import (
     TicketPurchaseRequest, 
     TicketPurchaseResponse
 )
+from utils.settings import get_settings
+from utils.reqestQueue import RequestQueue
 
 
 class GatewayService():
@@ -38,6 +41,12 @@ class GatewayService():
         self._flightCRUD = flightCRUD()
         self._ticketCRUD = ticketCRUD()
         self._bonusCRUD  = bonusCRUD()
+
+        settings = get_settings()
+        gateway_host = settings["services"]["gateway"]["host"]
+        gateway_port = settings["services"]["gateway"]["port"]
+
+        self.http_path = f'http://{gateway_host}:{gateway_port}/api/v1/'
         
     async def get_list_of_flights(self, page: int, size: int):
         flight_list = await self._flightCRUD.get_all_flights(
@@ -47,8 +56,8 @@ class GatewayService():
 
         flights = []
         for flight_dict in flight_list:
-            from_airport = await self.__get_airport_by_id(flight_dict["from_airport_id"])
-            to_airport = await self.__get_airport_by_id(flight_dict["to_airport_id"])
+            from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
+            to_airport = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
 
             flights.append(
                 FlightResponse(
@@ -74,9 +83,13 @@ class GatewayService():
 
         tickets = []
         for ticket_dict in ticket_list:
-            flight_dict  = await self.__get_flight_by_number(ticket_dict["flight_number"])
-            from_airport = await self.__get_airport_by_id(flight_dict["from_airport_id"])
-            to_airport   = await self.__get_airport_by_id(flight_dict["to_airport_id"])
+            try:
+                flight_dict  = await self.__get_flight_by_number(ticket_dict["flight_number"])
+                from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
+                to_airport   = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
+            except ServiceUnavailableException:
+                from_airport = f"flight_number: {ticket_dict['flight_number']}"
+                to_airport   = f"flight_number: {ticket_dict['flight_number']}"
 
             tickets.append(
                 TicketResponse(
@@ -84,7 +97,7 @@ class GatewayService():
                     flightNumber=ticket_dict["flight_number"],
                     fromAirport=from_airport,
                     toAirport=to_airport,
-                    date=flight_dict["datetime"],
+                    date=flight_dict["datetime"] if flight_dict else "",
                     price=ticket_dict["price"],
                     status=ticket_dict["status"],
                 )
@@ -100,16 +113,20 @@ class GatewayService():
                 message="Билета с таким UID у данного пользователя не существует"
             )
         
-        flight_dict  = await self.__get_flight_by_number(ticket_dict["flight_number"])
-        from_airport = await self.__get_airport_by_id(flight_dict["from_airport_id"])
-        to_airport   = await self.__get_airport_by_id(flight_dict["to_airport_id"])
+        try:
+            flight_dict  = await self.__get_flight_by_number(ticket_dict["flight_number"])
+            from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
+            to_airport   = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
+        except ServiceUnavailableException:
+            from_airport = f"flight_number: {ticket_dict['flight_number']}"
+            to_airport   = f"flight_number: {ticket_dict['flight_number']}"
 
         return TicketResponse(
                 ticketUid=ticket_dict["ticket_uid"],
                 flightNumber=ticket_dict["flight_number"],
                 fromAirport=from_airport,
                 toAirport=to_airport,
-                date=flight_dict["datetime"],
+                date=flight_dict["datetime"] if flight_dict else "",
                 price=ticket_dict["price"],
                 status=ticket_dict["status"],
             )
@@ -143,22 +160,32 @@ class GatewayService():
         )
 
         if ticket_purchase_request.paidFromBalance:
-            updated_privilege = await self.__write_off_bonuses(
-                privilege_dict=privilege_dict,
-                ticket_uid=ticket_dict["ticket_uid"],
-                balance_diff=paid_by_bonuses
-            )
+            try:
+                updated_privilege = await self.__write_off_bonuses(
+                    privilege_dict=privilege_dict,
+                    ticket_uid=ticket_dict["ticket_uid"],
+                    balance_diff=paid_by_bonuses
+                )
+            except ServiceUnavailableException:
+                self._ticketCRUD.delete_ticket(ticket_dict["ticket_uid"])
         else:
             coeff = self.__get_bonus_accrual_coeff(privilege_dict["status"])
-
-            updated_privilege = await self.__add_bonuses(
-                privilege_dict=privilege_dict,
-                ticket_uid=ticket_dict["ticket_uid"],
-                balance_diff=round(paid_by_money * coeff)
-            )
-
-        from_airport = await self.__get_airport_by_id(flight_dict["from_airport_id"])
-        to_airport = await self.__get_airport_by_id(flight_dict["to_airport_id"])
+            
+            try:
+                updated_privilege = await self.__add_bonuses(
+                    privilege_dict=privilege_dict,
+                    ticket_uid=ticket_dict["ticket_uid"],
+                    balance_diff=round(paid_by_money * coeff)
+                )
+            except ServiceUnavailableException:
+                self._ticketCRUD.delete_ticket(ticket_dict["ticket_uid"])
+        
+        try:
+            from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
+            to_airport = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
+        except ServiceUnavailableException:
+            from_airport = f"from_airport_id: {flight_dict.get('from_airport_id')}"
+            to_airport = f"to_airport_id: {flight_dict.get('to_airport_id')}"
 
         return TicketPurchaseResponse(
                 ticketUid=ticket_dict["ticket_uid"],
@@ -188,34 +215,45 @@ class GatewayService():
             )
         )
 
-        privilege_histories = await self._bonusCRUD.get_all_privilege_histories(
-            PrivilegeHistoryFilter(
-                ticket_uid=ticket_uid
+        try:
+            privilege_histories = await self._bonusCRUD.get_all_privilege_histories(
+                PrivilegeHistoryFilter(
+                    ticket_uid=ticket_uid
+                )
             )
-        )
-        last_history_dict = privilege_histories[-1]
-        privilege_dict = await self._bonusCRUD.get_privilege_by_id(
-            privilege_id=last_history_dict["privilege_id"]
-        )
+            last_history_dict = privilege_histories[-1]
+            privilege_dict = await self._bonusCRUD.get_privilege_by_id(
+                privilege_id=last_history_dict["privilege_id"]
+            )
 
-        if last_history_dict["operation_type"] == PrivilegeHistoryStatus.FILL_IN_BALANCE:
-            await self.__write_off_bonuses(
-                privilege_dict=privilege_dict,
-                ticket_uid=ticket_uid,
-                balance_diff=last_history_dict["balance_diff"]
-            )
-        else:
-            await self.__add_bonuses(
-                privilege_dict=privilege_dict,
-                ticket_uid=ticket_uid,
-                balance_diff=last_history_dict["balance_diff"]
+            if last_history_dict["operation_type"] == PrivilegeHistoryStatus.FILL_IN_BALANCE:
+                await self.__write_off_bonuses(
+                    privilege_dict=privilege_dict,
+                    ticket_uid=ticket_uid,
+                    balance_diff=last_history_dict["balance_diff"]
+                )
+            else:
+                await self.__add_bonuses(
+                    privilege_dict=privilege_dict,
+                    ticket_uid=ticket_uid,
+                    balance_diff=last_history_dict["balance_diff"]
+                )
+        except ServiceUnavailableException:
+            RequestQueue.add_http_request(
+                url=f'{self.http_path}tickets/?ticketUid={ticket_uid}',
+                headers={"X-User-Name": user_name},
+                http_method=requests.delete
             )
 
         return updated_ticket_dict
     
     async def get_user_information(self, user_name: str):
         tickets = await self.get_info_on_all_user_tickets(user_name)
-        privilege_dict = await self.__get_privilege_by_username(user_name)
+ 
+        try:
+            privilege_dict = await self.__get_privilege_by_username(user_name)
+        except ServiceUnavailableException:
+            privilege_dict = {}
 
         return UserInfoResponse(
                 tickets=tickets,
@@ -229,7 +267,7 @@ class GatewayService():
                 privilege_id=privilege_dict["id"]
             )
         )
-
+      
         histories = []
         for history in privilege_histories:
             histories.append(
@@ -242,8 +280,8 @@ class GatewayService():
             )
 
         return PrivilegeInfoResponse(
-                balance=privilege_dict["balance"],
-                status=privilege_dict["status"],
+                balance=privilege_dict["balance"] if privilege_dict else None,
+                status=privilege_dict["status"] if privilege_dict else None,
                 history=histories
             )
     
@@ -255,7 +293,7 @@ class GatewayService():
         ):
         if balance_diff > privilege_dict["balance"]:
             balance_diff = privilege_dict["balance"]
-
+        
         updated_privilege = await self._bonusCRUD.update_privilege_by_id(
             privilege_id=privilege_dict["id"],
             privilege_update=PrivilegeUpdate(
@@ -318,7 +356,7 @@ class GatewayService():
 
         return paid_by_bonuses, paid_by_money
         
-    async def __get_airport_by_id(self, airport_id: int):
+    async def __get_airport_by_id(self, airport_id: int | None):
         if airport_id:
             airport_dict = await self._flightCRUD.get_airport_by_id(airport_id)
             airport = f"{airport_dict['city']} {airport_dict['name']}"

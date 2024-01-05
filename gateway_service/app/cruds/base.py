@@ -1,6 +1,10 @@
 import inspect
+from fastapi import status
 
-from exceptions.http_exceptions import InvalidRequestException
+from exceptions.http_exceptions import (
+    InvalidRequestException, 
+    ServiceUnavailableException
+)
 
 
 class BaseCRUD():
@@ -8,7 +12,12 @@ class BaseCRUD():
         method = inspect.stack()[1][3]
         method = " ".join(method.split('_')).title()
         
-        if status_code >= 400:
+        if status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
+            raise ServiceUnavailableException(
+                prefix=method,
+                status_code=status_code
+            )
+        elif status_code >= 400:
             raise InvalidRequestException(
                 prefix=method,
                 status_code=status_code
