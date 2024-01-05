@@ -1,0 +1,93 @@
+name: GitHub Classroom Workflow
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  unit-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install the necessary packages
+        run: pip3.10 install -r requirements.txt
+
+      - name: Run unit tests for ticket service
+        run: pytest -vs ticket_service/app/unit_tests/ticket.py
+
+      - name: Run unit tests for flight service
+        run: pytest -vs flight_service/app/unit_tests/flight.py
+
+  deploy:
+    name: Deploy service on VM
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Copy code to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "bonus_service,flight_service,ticket_service,gateway_service,docker,docker-compose.yml,config.yaml,requirements.txt"
+          target: /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
+
+      - name: Run app on VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker-compose down
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi gateway_service
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi bonus_service
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi flight_service
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi ticket_service
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker rmi gateway_service
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker-compose up -d
+            echo ${{ secrets.SSH_PASSWORD }} | sudo ./scripts/wait-script.sh
+
+  autograding:
+    name: Autograding
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+    
+      - name: Run API Tests
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          run: ./scripts/test-script.sh v1 bonus_service 8050
+
+      - uses: education/autograding@v1
+        id: autograder
+        continue-on-error: true
