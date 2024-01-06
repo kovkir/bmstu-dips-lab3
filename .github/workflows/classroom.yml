@@ -91,10 +91,9 @@ jobs:
       - uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USERNAME }}
-          passphrase: ${{ secrets.SSH_PASSWORD }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
             echo ${{ secrets.SSH_PASSWORD }} | sudo ./scripts/test-script.sh v1 bonus_service 8050
