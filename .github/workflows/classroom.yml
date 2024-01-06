@@ -58,6 +58,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          WAIT_PORTS: 8080,8070,8060,8050
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S docker-compose down
