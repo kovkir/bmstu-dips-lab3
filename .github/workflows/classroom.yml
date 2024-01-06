@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "bonus_service,flight_service,ticket_service,gateway_service,scripts,v1,docker,docker-compose.yml,config.yaml,requirements.txt"
+          source: "bonus_service,flight_service,ticket_service,gateway_service,scripts,v1,Makefile,docker,docker-compose.yml,config.yaml,requirements.txt"
           target: /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
 
       - name: Run app on VM

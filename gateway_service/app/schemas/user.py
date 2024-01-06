@@ -6,4 +6,4 @@ from schemas.bonus import PrivilegeShortInfo
 
 class UserInfoResponse(BaseModel):
     tickets: list[TicketResponse]
-    privilege: PrivilegeShortInfo
+    privilege: PrivilegeShortInfo | None
