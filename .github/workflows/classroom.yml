@@ -87,7 +87,3 @@ jobs:
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
             echo ${{ secrets.SSH_PASSWORD }} | sudo ./scripts/test-script.sh v1 bonus_service 8050
-
-      - uses: education/autograding@v1
-        id: autograder
-        continue-on-error: true
