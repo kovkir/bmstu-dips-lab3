@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "bonus_service,flight_service,ticket_service,gateway_service,scripts,docker,docker-compose.yml,config.yaml,requirements.txt"
+          source: "bonus_service,flight_service,ticket_service,gateway_service,scripts,v1,docker,docker-compose.yml,config.yaml,requirements.txt"
           target: /home/${{ secrets.SSH_USERNAME }}/flight-booking-system
 
       - name: Run app on VM
@@ -77,16 +77,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-    
-      # - uses: fifsky/ssh-action@master
-      #   with:
-      #     command: |
-      #       ./scripts/test-script.sh v1 bonus_service 8050
-      #     host: ${{ secrets.HOST }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     user: ${{ secrets.SSH_USERNAME }}
-      #     pass: ${{ secrets.SSH_PASSWORD }}
-      #     key: ${{ secrets.SSH_KEY }}
 
       - uses: appleboy/ssh-action@v1.0.0
         with:
