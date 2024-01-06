@@ -253,7 +253,7 @@ class GatewayService():
         try:
             privilege_dict = await self.__get_privilege_by_username(user_name)
         except ServiceUnavailableException:
-            privilege_dict = None
+            privilege_dict = {}
 
         return UserInfoResponse(
                 tickets=tickets,

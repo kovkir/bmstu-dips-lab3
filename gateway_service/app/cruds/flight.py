@@ -26,7 +26,10 @@ class FlightCRUD(IFlightCRUD, BaseCRUD):
                 f'{f"&flight_number={flight_number}" if flight_number else ""}',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Flight Service"
+        )
         
         return response.json()
     
@@ -35,6 +38,9 @@ class FlightCRUD(IFlightCRUD, BaseCRUD):
             url=f'{self.http_path}airports/{airport_id}/',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Flight Service"
+        )
         
         return response.json()

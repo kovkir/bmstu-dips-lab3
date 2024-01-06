@@ -34,7 +34,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
                 f'{f"&username={username}" if username else ""}',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
         
         return response.json()
     
@@ -43,7 +46,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
             url=f'{self.http_path}privileges/{privilege_id}/',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
 
         return response.json()
     
@@ -57,7 +63,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
         
         location: str = response.headers["location"]
         id_ = int(location.split("/")[-1])
@@ -78,7 +87,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
         
         return response.json()
     
@@ -92,7 +104,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
                 f'{f"ticket_uid={ph_filter.ticket_uid}" if ph_filter.ticket_uid else ""}',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
         
         return response.json()
     
@@ -109,7 +124,10 @@ class BonusCRUD(IBonusCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Bonus Service"
+        )
         
         location: str = response.headers["location"]
         id_ = int(location.split("/")[-1])

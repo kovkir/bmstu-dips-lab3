@@ -38,16 +38,12 @@ class ConflictException(HTTPException):
 class ServiceUnavailableException(HTTPException):
     def __init__(
         self,
-        prefix: str,
-        message: str | None = None,
+        message: str,
         headers: dict[str, str] | None = None
     ) -> None:
-        if message == None:
-            message = "Сервис недоступен"
-
         super().__init__(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, 
-            detail=f"{prefix}: {message}", 
+            detail=message, 
             headers=headers
         )
 

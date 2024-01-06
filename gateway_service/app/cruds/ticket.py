@@ -30,7 +30,10 @@ class TicketCRUD(ITicketCRUD, BaseCRUD):
                 f'{f"&username={username}" if username else ""}',
             http_method=requests.get
         )
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Ticket Service"
+        )
         
         return response.json()
     
@@ -42,7 +45,10 @@ class TicketCRUD(ITicketCRUD, BaseCRUD):
         if response.status_code == status.HTTP_404_NOT_FOUND:
             return None
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Ticket Service"
+        )
 
         return response.json()
     
@@ -56,7 +62,10 @@ class TicketCRUD(ITicketCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Ticket Service"
+        )
         
         location: str = response.headers["location"]
         uid = location.split("/")[-1]
@@ -73,7 +82,10 @@ class TicketCRUD(ITicketCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Ticket Service"
+        )
         
         return response.json()
     
@@ -86,4 +98,7 @@ class TicketCRUD(ITicketCRUD, BaseCRUD):
             response = Response()
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         
-        self._check_status_code(response.status_code)
+        self._check_status_code(
+            status_code=response.status_code,
+            service_name="Ticket Service"
+        )
