@@ -79,7 +79,7 @@ jobs:
           fetch-depth: 0
 
       - uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 5
+        timeout-minutes: 10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
