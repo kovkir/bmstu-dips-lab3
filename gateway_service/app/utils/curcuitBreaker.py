@@ -87,7 +87,7 @@ class CircuitBreaker:
 
     @staticmethod
     def _check_service_health(host_url: str):
-        url = f"http://{host_url}/manage/health"
+        url = f"http://{host_url}/api/v1/manage/health"
         try:
             resp = requests.get(url, timeout=5)
             if resp.status_code == status.HTTP_200_OK:
