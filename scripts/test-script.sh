@@ -42,7 +42,7 @@ step() {
   fi
 
   newman run \
-    --delay-request=200 \
+    --delay-request=400 \
     --folder=step"$step" \
     --export-environment "$variant"/postman/environment.json \
     --environment "$variant"/postman/environment.json \
