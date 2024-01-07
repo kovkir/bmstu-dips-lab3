@@ -20,7 +20,7 @@ class CircuitBreaker:
             headers={}, 
             data={}, 
             params=None, 
-            timeout=1
+            timeout=5
         ):
         resp = requests.Response()
         resp.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -89,8 +89,9 @@ class CircuitBreaker:
     def _check_service_health(host_url: str):
         url = f"http://{host_url}/api/v1/manage/health"
         try:
-            resp = requests.get(url, timeout=1)
+            resp = requests.get(url, timeout=5)
             if resp.status_code == status.HTTP_200_OK:
                 CircuitBreaker._service_state[host_url] = "available"
         except Exception:
             print("Error health:", url)
+            

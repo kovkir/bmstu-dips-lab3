@@ -39,7 +39,7 @@ step() {
   sudo docker-compose "$operation" "$service"
   if [[ "$operation" == "start" ]]; then
     "$path"/wait-for.sh -t 120 "http://localhost:$port/api/v1/manage/health" -- echo "Host localhost:$port is active"
-    sleep 10
+    sleep 15
   fi
 
   newman run \

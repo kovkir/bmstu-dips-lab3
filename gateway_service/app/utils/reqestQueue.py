@@ -1,5 +1,6 @@
 import time
 from threading import Thread
+from datetime import datetime
 
 from utils.settings import get_settings
 
@@ -28,7 +29,7 @@ class RequestQueue:
             timeout=5
         ):
 
-        RequestQueue._req_queue[url + http_method.__name__] = Request(
+        RequestQueue._req_queue[url + http_method.__name__ + str(datetime.now())] = Request(
             url=url,
             http_method=http_method, 
             headers=headers,

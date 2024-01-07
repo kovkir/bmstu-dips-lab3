@@ -240,7 +240,7 @@ class GatewayService():
                 )
         except ServiceUnavailableException:
             RequestQueue.add_http_request(
-                url=f'{self.http_path}tickets/?ticketUid={ticket_uid}',
+                url=f'{self.http_path}tickets/{ticket_uid}',
                 headers={"X-User-Name": user_name},
                 http_method=requests.delete
             )
