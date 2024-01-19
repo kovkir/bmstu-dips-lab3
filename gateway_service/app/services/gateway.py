@@ -88,6 +88,7 @@ class GatewayService():
                 from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
                 to_airport   = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
             except ServiceUnavailableException:
+                flight_dict = None
                 from_airport = f"flight_number: {ticket_dict['flight_number']}"
                 to_airport   = f"flight_number: {ticket_dict['flight_number']}"
 
@@ -118,6 +119,7 @@ class GatewayService():
             from_airport = await self.__get_airport_by_id(flight_dict.get("from_airport_id"))
             to_airport   = await self.__get_airport_by_id(flight_dict.get("to_airport_id"))
         except ServiceUnavailableException:
+            flight_dict = None
             from_airport = f"flight_number: {ticket_dict['flight_number']}"
             to_airport   = f"flight_number: {ticket_dict['flight_number']}"
 

@@ -6,8 +6,13 @@ from enums.status import TicketStatus
 from schemas.bonus import PrivilegeShortInfo
 
 
-def convert_datetime(datetime: dt) -> str:
-    return datetime.strftime('%Y-%m-%d %H:%M')
+def convert_datetime(datetime: dt | str) -> str:
+    try:
+        res_datetime = datetime.strftime('%Y-%m-%d %H:%M')
+    except:
+        res_datetime = datetime
+
+    return res_datetime
 
 
 class TicketResponse(BaseModel):
@@ -15,7 +20,7 @@ class TicketResponse(BaseModel):
     flightNumber: constr(max_length=20)
     fromAirport: str | None
     toAirport: str | None
-    date: dt
+    date: dt | str
     price: conint(ge=1)
     status: TicketStatus
 
@@ -36,7 +41,7 @@ class TicketPurchaseResponse(BaseModel):
     flightNumber: constr(max_length=20)
     fromAirport: str | None
     toAirport: str | None
-    date: dt
+    date: dt | str
     price: conint(ge=1)
     paidByMoney: conint(ge=0)
     paidByBonuses: conint(ge=0)
