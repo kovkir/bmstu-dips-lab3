@@ -1,0 +1,489 @@
+---
+openapi: 3.1.0
+info:
+  title: Bonus Service
+  version: v1
+paths:
+  "/api/v1/privileges/":
+    get:
+      tags:
+      - Privilege REST API operations
+      summary: Get All Privileges
+      operationId: get_all_privileges_api_v1_privileges__get
+      parameters:
+      - name: username
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Username
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - "$ref": "#/components/schemas/PrivilegeStatus"
+          - type: 'null'
+          title: Status
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          title: Size
+      responses:
+        '200':
+          description: All Privileges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Privilege"
+                title: Response Get All Privileges Api V1 Privileges  Get
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Privilege REST API operations
+      summary: Create New Privilege
+      operationId: create_new_privilege_api_v1_privileges__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PrivilegeCreate"
+      responses:
+        '201':
+          description: Created new Privilege
+          headers:
+            Location:
+              description: Path to new Privilege
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/privileges/{privilege_id}/":
+    get:
+      tags:
+      - Privilege REST API operations
+      summary: Get Privilege By Id
+      operationId: get_privilege_by_id_api_v1_privileges__privilege_id___get
+      parameters:
+      - name: privilege_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Privilege Id
+      responses:
+        '200':
+          description: Privilege by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Privilege"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Privilege by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Privilege REST API operations
+      summary: Remove Privilege By Id
+      operationId: remove_privilege_by_id_api_v1_privileges__privilege_id___delete
+      parameters:
+      - name: privilege_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Privilege Id
+      responses:
+        '204':
+          description: Privilege by ID was removed
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Privilege by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+      - Privilege REST API operations
+      summary: Update Privilege By Id
+      operationId: update_privilege_by_id_api_v1_privileges__privilege_id___patch
+      parameters:
+      - name: privilege_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Privilege Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PrivilegeUpdate"
+      responses:
+        '200':
+          description: Privilege by ID was updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Privilege"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Privilege by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/privilege_histories/":
+    get:
+      tags:
+      - Privilege History REST API operations
+      summary: Get All Privilege Histories
+      operationId: get_all_privilege_histories_api_v1_privilege_histories__get
+      parameters:
+      - name: privilege_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Privilege Id
+      - name: ticket_uid
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Ticket Uid
+      responses:
+        '200':
+          description: All Privilege Histories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/PrivilegeHistory"
+                title: Response Get All Privilege Histories Api V1 Privilege Histories  Get
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Privilege History REST API operations
+      summary: Create New Privilege History
+      operationId: create_new_privilege_history_api_v1_privilege_histories__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PrivilegeHistoryCreate"
+      responses:
+        '201':
+          description: Created new Privilege History
+          headers:
+            Location:
+              description: Path to new Privilege History
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/privilege_histories/{privilege_history_id}/":
+    get:
+      tags:
+      - Privilege History REST API operations
+      summary: Get Privilege History By Id
+      operationId: get_privilege_history_by_id_api_v1_privilege_histories__privilege_history_id___get
+      parameters:
+      - name: privilege_history_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Privilege History Id
+      responses:
+        '200':
+          description: Privilege History by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PrivilegeHistory"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Privilege History by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Privilege History REST API operations
+      summary: Remove Privilege History By Id
+      operationId: remove_privilege_history_by_id_api_v1_privilege_histories__privilege_history_id___delete
+      parameters:
+      - name: privilege_history_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Privilege History Id
+      responses:
+        '204':
+          description: Privilege History by ID was removed
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Privilege History by ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/manage/health/":
+    get:
+      tags:
+      - Manage
+      summary: Health
+      operationId: health_api_v1_manage_health__get
+      responses:
+        '200':
+          description: Bonus server is ready to work
+          content:
+            application/octet-stream:
+              example: ''
+components:
+  schemas:
+    ErrorResponse:
+      properties: {}
+      type: object
+      title: ErrorResponse
+      example:
+        message: 'Method: exception description'
+    Privilege:
+      properties:
+        username:
+          type: string
+          maxLength: 80
+          title: Username
+        status:
+          "$ref": "#/components/schemas/PrivilegeStatus"
+        balance:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: Balance
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - username
+      - status
+      - balance
+      - id
+      title: Privilege
+    PrivilegeCreate:
+      properties:
+        username:
+          type: string
+          maxLength: 80
+          title: Username
+        status:
+          allOf:
+          - "$ref": "#/components/schemas/PrivilegeStatus"
+          default: BRONZE
+        balance:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: Balance
+      type: object
+      required:
+      - username
+      title: PrivilegeCreate
+    PrivilegeHistory:
+      properties:
+        privilege_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Privilege Id
+        ticket_uid:
+          type: string
+          format: uuid
+          title: Ticket Uid
+        balance_diff:
+          type: integer
+          title: Balance Diff
+        operation_type:
+          "$ref": "#/components/schemas/PrivilegeHistoryStatus"
+        id:
+          type: integer
+          title: Id
+        datetime:
+          type: string
+          format: date-time
+          title: Datetime
+      type: object
+      required:
+      - privilege_id
+      - ticket_uid
+      - balance_diff
+      - operation_type
+      - id
+      - datetime
+      title: PrivilegeHistory
+    PrivilegeHistoryCreate:
+      properties:
+        privilege_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Privilege Id
+        ticket_uid:
+          type: string
+          format: uuid
+          title: Ticket Uid
+        balance_diff:
+          type: integer
+          title: Balance Diff
+        operation_type:
+          "$ref": "#/components/schemas/PrivilegeHistoryStatus"
+      type: object
+      required:
+      - ticket_uid
+      - balance_diff
+      - operation_type
+      title: PrivilegeHistoryCreate
+    PrivilegeHistoryStatus:
+      type: string
+      enum:
+      - FILL_IN_BALANCE
+      - DEBIT_THE_ACCOUNT
+      title: PrivilegeHistoryStatus
+    PrivilegeStatus:
+      type: string
+      enum:
+      - BRONZE
+      - SILVER
+      - GOLD
+      title: PrivilegeStatus
+    PrivilegeUpdate:
+      properties:
+        status:
+          anyOf:
+          - "$ref": "#/components/schemas/PrivilegeStatus"
+          - type: 'null'
+        balance:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+          title: Balance
+      type: object
+      title: PrivilegeUpdate
+    ValidationErrorResponse:
+      properties: {}
+      type: object
+      title: ValidationErrorResponse
+      example:
+        errors:
+        - loc: error location
+          msg: error message
+          type: type of error
+        message: Invalid request

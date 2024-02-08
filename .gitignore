@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+.vscode/
+.DS_Store
+
+venv/
+
+pg_data_flight/
+pg_data_ticket/
+pg_data_bonus/
+
+docs/key.pem

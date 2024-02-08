@@ -1,0 +1,341 @@
+---
+openapi: 3.1.0
+info:
+  title: Ticket Service
+  version: v1
+paths:
+  "/api/v1/tickets/":
+    get:
+      tags:
+      - Ticket REST API operations
+      summary: Get All Tickets
+      operationId: get_all_tickets_api_v1_tickets__get
+      parameters:
+      - name: username
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 80
+          - type: 'null'
+          title: Username
+      - name: flight_number
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 20
+          - type: 'null'
+          title: Flight Number
+      - name: min_price
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Min Price
+      - name: max_price
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            minimum: 1
+          - type: 'null'
+          title: Max Price
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - "$ref": "#/components/schemas/TicketStatus"
+          - type: 'null'
+          title: Status
+      - name: sort_field
+        in: query
+        required: false
+        schema:
+          allOf:
+          - "$ref": "#/components/schemas/SortTicket"
+          default: id_asc
+          title: Sort Field
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 100
+          title: Size
+      responses:
+        '200':
+          description: All Tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Ticket"
+                title: Response Get All Tickets Api V1 Tickets  Get
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+    post:
+      tags:
+      - Ticket REST API operations
+      summary: Create New Ticket
+      operationId: create_new_ticket_api_v1_tickets__post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TicketCreate"
+      responses:
+        '201':
+          description: Created new Ticket
+          headers:
+            Location:
+              description: Path to new Ticket
+              style: simple
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+  "/api/v1/tickets/{ticket_uid}/":
+    get:
+      tags:
+      - Ticket REST API operations
+      summary: Get Ticket By Uid
+      operationId: get_ticket_by_uid_api_v1_tickets__ticket_uid___get
+      parameters:
+      - name: ticket_uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Ticket Uid
+      responses:
+        '200':
+          description: Ticket by UID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Ticket"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Ticket by UID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+      - Ticket REST API operations
+      summary: Remove Ticket By Uid
+      operationId: remove_ticket_by_uid_api_v1_tickets__ticket_uid___delete
+      parameters:
+      - name: ticket_uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Ticket Uid
+      responses:
+        '204':
+          description: Ticket by UID was removed
+          content:
+            application/octet-stream:
+              example: ''
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Ticket by UID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+    patch:
+      tags:
+      - Ticket REST API operations
+      summary: Update Ticket By Uid
+      operationId: update_ticket_by_uid_api_v1_tickets__ticket_uid___patch
+      parameters:
+      - name: ticket_uid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Ticket Uid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TicketUpdate"
+      responses:
+        '200':
+          description: Ticket by UID was updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Ticket"
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrorResponse"
+        '404':
+          description: Not found Ticket by UID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+  "/api/v1/manage/health/":
+    get:
+      tags:
+      - Manage
+      summary: Health
+      operationId: health_api_v1_manage_health__get
+      responses:
+        '200':
+          description: Ticket server is ready to work
+          content:
+            application/octet-stream:
+              example: ''
+components:
+  schemas:
+    ErrorResponse:
+      properties: {}
+      type: object
+      title: ErrorResponse
+      example:
+        message: 'Method: exception description'
+    SortTicket:
+      type: string
+      enum:
+      - username_asc
+      - username_desc
+      - flight_number_asc
+      - flight_number_desc
+      - price_asc
+      - price_desc
+      - status_asc
+      - status_desc
+      - id_asc
+      - id_desc
+      title: SortTicket
+    Ticket:
+      properties:
+        username:
+          type: string
+          maxLength: 80
+          title: Username
+        flight_number:
+          type: string
+          maxLength: 20
+          title: Flight Number
+        price:
+          type: integer
+          minimum: 0
+          title: Price
+        status:
+          "$ref": "#/components/schemas/TicketStatus"
+        id:
+          type: integer
+          title: Id
+        ticket_uid:
+          type: string
+          format: uuid
+          title: Ticket Uid
+      type: object
+      required:
+      - username
+      - flight_number
+      - price
+      - status
+      - id
+      - ticket_uid
+      title: Ticket
+    TicketCreate:
+      properties:
+        username:
+          type: string
+          maxLength: 80
+          title: Username
+        flight_number:
+          type: string
+          maxLength: 20
+          title: Flight Number
+        price:
+          type: integer
+          minimum: 0
+          title: Price
+        status:
+          "$ref": "#/components/schemas/TicketStatus"
+      type: object
+      required:
+      - username
+      - flight_number
+      - price
+      - status
+      title: TicketCreate
+    TicketStatus:
+      type: string
+      enum:
+      - PAID
+      - CANCELED
+      title: TicketStatus
+    TicketUpdate:
+      properties:
+        status:
+          "$ref": "#/components/schemas/TicketStatus"
+      type: object
+      required:
+      - status
+      title: TicketUpdate
+    ValidationErrorResponse:
+      properties: {}
+      type: object
+      title: ValidationErrorResponse
+      example:
+        errors:
+        - loc: error location
+          msg: error message
+          type: type of error
+        message: Invalid request
